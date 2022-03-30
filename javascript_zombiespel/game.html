@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<head>
+    <title>Zombie shooter 2d ultimate game of the year 2012</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div>
+        <!-- Här börjar Canvasen / spelet -->
+        <script src="/simple.js">
+        var player1 = {x: 10, y:200};
+        var player2 = {x: 10, y:10};
+        var bgMusic = new Audio("https://ia800501.us.archive.org/33/items/nyannyannyan/NyanCatoriginal.mp3");
+        var skottLjud = new Audio("https://cdn.videvo.net/videvo_files/audio/premium/audio0097/watermarked/GUN-MACHINE-GUN_GEN-HDF-13351_preview.mp3");
+
+        
+            //Spawnar zombies
+            var numOfZombies = 5;
+
+        var zombies = [];
+        var i = 0;
+        while (i < numOfZombies)
+        {
+            zombies.push({x: random(0, -50),
+                          y: random(40, totalHeight - 40),
+                          speed: random(3,7),
+                          alive: true,
+                          hp: 10});
+            i++;
+        }
+
+            var hp = 20;
+            var hpBarColor = "green";
+            var skottP1 = [];
+            var skottP2 = [];
+            var direction = [];
+            var score = 0
+            var zombiesLeft = numOfZombies;
+
+            function update()
+            {
+                clearScreen();
+                bgMusic.play();
+
+                //movement karaktärer
+                picture(player1.x, player1.y, "/img/Player_1.png")
+                picture(player2.x, player2.y, "/img/Player_2.png")
+                if(keyboard.w){player1.y -= 10}
+                if(keyboard.s){player1.y += 10}
+                if(keyboard.a){player1.x -= 10}
+                if(keyboard.d){player1.x += 10}
+                if(keyboard.up){player2.y -= 10}
+                if(keyboard.down){player2.y += 10}
+                if(keyboard.left){player2.x -= 10}
+                if(keyboard.right){player2.x += 10}
+
+                //HP representation
+                rectangle(totalWidth/2, 50, hp * 10, 20, hpBarColor)
+
+                //skott
+                if(keyboard.space){
+                    skottP1.push([player1.x, player1.y + 85,]);
+                    skottP2.push([player2.x, player2.y + 85,])
+                    direction.push(-1);
+                    skottLjud.play();
+                }
+                for(j = 0; j < skottP1.length; j++){
+                    circle(skottP1[j][0], skottP1[j][1], 3, "black")
+                    skottP1[j][0] += 20 *direction[j];
+                    if(skottP1.x < -50){skottP1.shift}
+                }
+                for(j = 0; j < skottP2.length; j++){
+                    circle(skottP2[j][0], skottP2[j][1], 3, "black")
+                    skottP2[j][0] += 20 *direction[j];
+                    if(skottP2.x < -50){skottP2.shift}
+                }
+                //movement zombies och skada på spelare
+                i = 0
+                while(i < numOfZombies)
+                {
+                    var zombie = zombies[i]
+                    if(zombie.alive){
+                        picture(zombie.x, zombie.y, "/img/zombie.png")
+                        zombie.x += zombie.speed
+                        if(zombie.x > totalWidth)
+                        {
+                            hp -=5
+                            zombie.x = random(0, -50)
+                            zombie.y = random(40, totalHeight - 40)
+                            if(hp <= 0){
+                                hpBarColor = "aqua"
+                                alert("Game Over")
+                            }
+                        }
+                        for(let z = 0; z < skottP1.length; z++){
+                            if(distance(zombie.x, zombie.y, skottP1[z][0], skottP1[z][1]) < 20){
+                                zombie.hp -= 5;
+                                if(zombie.hp <= 0){zombie.alive = false; zombiesLeft--}
+                                skottLjud.play();
+                            }
+                        }
+                        for(let z = 0; z < skottP2.length; z++){
+                            if(distance(zombie.x, zombie.y, skottP2[z][0], skottP2[z][1]) < 20){
+                                zombie.hp -= 5;
+                                if(zombie.hp <= 0){zombie.alive = false; zombiesLeft--}
+                            }
+                        }
+                    }
+                    i++
+                    if(zombie.hp > 0){
+                        rectangle(zombie.x + 50, zombie.y + 10, zombie.hp * 3, 10, "green")
+                    }
+                text(100, 100, 100, score,"black")
+                score++;
+                if(zombiesLeft <= 0){
+                    alert(`Du vann och din poäng blev ${score}` )
+                }
+                }
+                
+                //Border
+                if(player1.x < 0){player1.x += 10}
+                if(player1.x > totalWidth - 50){player1.x -= 10}
+                if(player1.y < 20){player1.y += 10}
+                if(player1.y > totalHeight - 50){player1.y -= 10}
+                if(player2.x < 0){player2.x += 10}
+                if(player2.x > totalWidth - 50){player2.x -= 10}
+                if(player2.y < 20){player2.y += 10}
+                if(player2.y > totalHeight - 50){player2.y -= 10}
+            }
+        </script>
+    </div>
+</body>
